@@ -44,11 +44,10 @@ def runExperiment(table):
 if __name__ == "__main__":
    table = readInStockTable('stocks/fortune-500.csv')
    runExperiment(table)
-   # payoffGraph(table, list(sorted(table.keys())), cumulative=True)
+   payoffGraph(table, list(sorted(table.keys())), cumulative=True)
 
-   print()
+   # print()
 
-   table2 = readInStockTable('stocks/random-stocks.csv')
-   runExperiment(table2)
+   # table2 = readInStockTable('stocks/random-stocks.csv')
+   # runExperiment(table2)
    # payoffGraph(table2, list(sorted(table2.keys())), cumulative=True)
-
