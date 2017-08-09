@@ -17,6 +17,7 @@ def randomBanditStocks(stockTable):
    shuffle(tickers) # note that this makes the algorithm SO unstable
    numRounds = len(stockTable[tickers[0]])
    numActions = len(tickers)
+   avgRewards = []
 
    reward = lambda choice, t: payoff(stockTable, t, tickers[choice])
    singleActionReward = lambda j: sum([reward(j,t) for t in range(numRounds)])
@@ -30,24 +31,20 @@ def randomBanditStocks(stockTable):
    for (chosenAction, reward) in randomGenerator:
       cumulativeReward += reward
       t += 1
+      avgRewards.append(cumulativeReward * 1.0 / t)
       if t == numRounds:
          break
 
-   return cumulativeReward, bestActionCumulativeReward, tickers[bestAction]
-
-
-prettyList = lambda L: ', '.join(['%.3f' % x for x in L])
-payoffStats = lambda data: stats(randomBanditStocks(data)[0] for _ in range(1000))
+   return cumulativeReward, bestActionCumulativeReward, tickers[bestAction], avgRewards
 
 
 def runExperiment(table):
-   print("(Expected payoff, variance) over 1000 trials is %r" % (payoffStats(table),))
-   reward, bestActionReward, bestStock = randomBanditStocks(table)
+   reward, bestActionReward, bestStock, avgRewards = randomBanditStocks(table)
    print("For a single run: ")
    print("Payoff was %.2f" % reward)
    print("Regret was %.2f" % (bestActionReward - reward))
    print("Best stock was %s at %.2f" % (bestStock, bestActionReward))
-
+   return reward, bestActionReward, bestStock, avgRewards
 
 if __name__ == "__main__":
    table = readInStockTable('stocks/fortune-500.csv')

@@ -15,7 +15,7 @@ def epsilon_greedy(numActions, reward, epsilon=0.05):
 	while True:
 		empMeans = [payoffSums[i] / numPlays[i] for i in range(numActions)]
 		action = max(range(numActions), key=lambda i: empMeans[i])
-		if random.uniform(0, 1) < 0.05:
+		if random.uniform(0, 1) < epsilon:
 			arms = range(numActions)
 			arms[action], arms[-1] = arms[-1], arms[action]
 			action = arms[:-1][random.randint(0, numActions-2)]

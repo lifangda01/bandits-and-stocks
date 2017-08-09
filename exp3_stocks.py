@@ -11,6 +11,7 @@ def exp3Stocks(stockTable, gamma):
    #print(tickers)
    numRounds = len(stockTable[tickers[0]])
    numActions = len(tickers)
+   avgRewards = []
 
    reward = lambda choice, t: payoff(stockTable, t, tickers[choice])
    singleActionReward = lambda j: sum([reward(j,t) for t in range(numRounds)])
@@ -18,31 +19,30 @@ def exp3Stocks(stockTable, gamma):
    bestAction = max(range(numActions), key=singleActionReward)
    bestActionCumulativeReward = singleActionReward(bestAction)
 
+   bestReward = max([reward(i,t) for i in range(numActions) for t in range(numRounds)])
+   worstReward = min([reward(i,t) for i in range(numActions) for t in range(numRounds)])
+
    cumulativeReward = 0
    t = 0
-   expGenerator = exp3(numActions, reward, gamma, rewardMin = -1, rewardMax = 1.0)
+   expGenerator = exp3(numActions, reward, gamma, rewardMin = worstReward, rewardMax = bestReward)
    for (choice, reward, estReward, weights) in expGenerator:
       cumulativeReward += reward
       t += 1
+      
+      avgRewards.append(cumulativeReward * 1.0 / t)
+
       if t == numRounds:
          break
 
-   return cumulativeReward, bestActionCumulativeReward, weights, tickers[bestAction], tickers
+   return cumulativeReward, bestActionCumulativeReward, weights, tickers[bestAction], tickers, avgRewards
 
-
-prettyList = lambda L: ', '.join(['%.2f' % x for x in L])
-payoffStats = lambda data, gamma: stats(exp3Stocks(data, gamma)[0] for _ in range(1000))
-
-
-def runExperiment(table, gamma):
-   print("(Expected payoff, variance) over 1000 trials is %r" % (payoffStats(table, gamma),))
-   reward, Gmax, weights, bestStock, tickers = exp3Stocks(table, gamma)
+def runExperiment(table, gamma=0.5):
+   reward, Gmax, weights, bestStock, tickers, avgRewards = exp3Stocks(table, gamma)
    print("For a single run: ")
    print("Payoff was %.2f" % reward)
    print("Regret was %.2f" % (Gmax - reward))
    print("Best stock was %s at %.2f" % (bestStock, Gmax))
-   print("weights: %r" % (prettyList(distr(weights)),))
-
+   return reward, Gmax, bestStock, avgRewards
 
 def weightsStats(table, gamma):
    weightDs = [] # dictionaries of final weights across all rounds

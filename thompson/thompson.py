@@ -1,7 +1,7 @@
 import random
 from scipy import stats
 
-def thompson_sampling(numActions, reward):
+def thompson_sampling(numActions, reward, bestReward, worstReward):
 	payoffSums = [0.0] * numActions
 	numPlays = [1] * numActions
 	success = [1] * numActions
@@ -15,10 +15,14 @@ def thompson_sampling(numActions, reward):
 		numPlays[action] += 1
 		payoffSums[action] += theReward
 
+		if t == 1300: print success, failure
+
 		yield action, theReward
 		t = t + 1
 
-		if random.uniform(0, 1) < theReward:
+		scaledReward = (theReward - worstReward) / (bestReward - worstReward)
+
+		if random.uniform(0, 1) < scaledReward:
 			success[action] += 1
 		else:
 			failure[action] += 1
